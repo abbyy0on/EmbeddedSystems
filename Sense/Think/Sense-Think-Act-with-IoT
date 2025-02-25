@@ -1,0 +1,78 @@
+// OBJECTIVES:  
+        //● Integrate a sensor and actuator onto an Arduino MKR Wifi 1010 for remote sensing and actuation.
+        //● Setup cloud service to display sensor data remotely and decouple the system from USB to operate off of remote power
+        //● Integrate an additional sensor or actuator into your cloud service. 
+
+
+// Part A - Setting Up the Hardware
+
+const int lightSensorPin = A0; // Pin connected to the light sensor
+const int ledPin = 0; // Pin connected to the LED
+void setup() {
+// Start serial communication at 9600 baud
+Serial.begin(9600);
+pinMode(ledPin, OUTPUT); // Set the LED pin as output
+digitalWrite(ledPin, LOW); // Ensure the LED starts off
+}
+void loop() {
+int lightLevel = analogRead(lightSensorPin); // Read the ADC value from
+the light sensor
+// Print the analog value to the Serial Monitor
+Serial.print(0); //freezes the lower bound of the ADC
+Serial.print(" ");
+Serial.print(1023); //freezes the upper bound of the ADC
+Serial.print(" ");
+Serial.println(lightLevel);
+if (lightLevel < 200) {
+digitalWrite(ledPin, HIGH); // Turn on the LED
+} else {
+digitalWrite(ledPin, LOW); // Turn off the LED
+}
+delay(100); // Small delay to stabilize readings
+}
+
+
+// Part B - Incorporating Arduino IoT Cloud Service
+
+// Part C - Incorporating Additional Sensing and/or Actuation
+
+const int lightSensorPin = A0; // Pin connected to the light sensor
+const int ledPin = 0; // Pin connected to the LED
+void setup() {
+// Initialize serial and wait for port to open:
+Serial.begin(9600);
+// This delay gives the chance to wait for a Serial Monitor without blocking if none is found
+delay(1500);
+// Defined in thingProperties.h
+initProperties();
+// Connect to Arduino IoT Cloud
+ArduinoCloud.begin(ArduinoIoTPreferredConnection);
+/*
+The following function allows you to obtain more information
+related to the state of network and IoT Cloud connection and errors
+the higher number the more granular information you’ll get.
+The default is 0 (only errors).
+Maximum is 4
+*/
+pinMode(ledPin, OUTPUT); // Set the led pin as output
+digitalWrite(ledPin, LOW); // Ensure the LED starts off
+setDebugMessageLevel(2);
+ArduinoCloud.printDebugInfo();
+}
+void loop() {
+ArduinoCloud.update();
+// Your code here
+lightSensor = analogRead(lightSensorPin); // Read the ADC value from the light sensor
+}
+/*
+Since LED is READ_WRITE variable, onLEDChange() is
+executed every time a new value is received from IoT Cloud.
+*/
+void onLEDChange() {
+// Act upon LED change
+if (lED) {
+digitalWrite(ledPin, HIGH); // Turn on the LED
+} else {
+digitalWrite(ledPin, LOW); // Turn off the LED
+}
+}
