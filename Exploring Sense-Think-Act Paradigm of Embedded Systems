@@ -1,0 +1,186 @@
+// OBJECTIVES: 
+  // Objectives:
+        //● Interface a microcontroller with sensors and actuators.
+        //● Read sensor data from various digital and analog sensors.
+        //● Calibrate an analog sensor output to make the ADC reading meaningful.
+        //● Process sensor data using a microcontroller.
+        //● Trigger actuators based on processed sensor information.
+        //● Design/Build a simple embedded system with the library of components available.
+
+
+// Part 1: (SENSE) Analog Transduction – Reading Sensor Data
+
+const int sensorPin = ASSIGN_PIN; //define one of the analog pins on the MKR shield e.g. A0,
+A1, A2, A3, A4
+void setup() {
+// Start serial communication at 9600 baud
+Serial.begin(9600);
+}
+void loop() {
+// Read the analog value from the sensor
+int sensorValue = analogRead(sensorPin);
+// Print the analog value to the Serial Monitor
+Serial.print(0); //freezes the lower bound of the ADC
+Serial.print(" ");
+Serial.print(1023); //freezes the upper bound of the ADC
+Serial.print(" ");
+Serial.println(sensorValue);
+delay(10);
+}
+
+
+// Part 2: (SENSE) Analog Transduction – Calibrating Sensor Data
+
+const int B = INSERT_VALUE; // B value of the thermistor, material-specific constant
+const int R0 = INSERT_VALUE; // Reference resistance at 25C
+const int sensorPin = A0; // Grove - Temperature Sensor connect to A0
+void setup() {
+}
+void loop()
+{
+int a = analogRead(sensorPin);
+float R = 1023.0/a-1.0;
+R = R0*R;
+// Steinhart-Hart equation
+float temperatureC = 1.0/(log(R/R0)/B+1/298.15)-273.15; // convert to temperature via
+datasheet
+float temperatureF = (temperatureC * 9.0 / 5.0) + 32.0;
+// Print the analog value to the Serial Monitor
+Serial.print(0); //freezes the lower bound of the ADC
+Serial.print(" ");
+Serial.print(100); //freezes the upper bound of the ADC
+Serial.print(" ");
+Serial.println(temperatureF);
+}
+
+
+// Part 3: (SENSE) – Digital Sensors
+
+// digital pin to be read.
+int sensorPin = ASSIGN_PIN; //define one of the digital pin on the MKR shield e.g. 0, 1,
+2, 3, 4
+// the setup routine runs once when you press reset:
+void setup() {
+// initialize serial communication at 9600 bits per second:
+Serial.begin(9600);
+// make the digital pin an input:
+pinMode(sensorPin, INPUT);
+}
+// the loop routine runs over and over again forever:
+void loop() {
+// read the input pin:
+int sensorState = digitalRead(sensorPin);
+// print out the state of the sensor:
+Serial.println(sensorState);
+delay(100); // delay in between reads for stability
+}
+
+
+// Part 4: (Think) – Processing - Introduction
+
+const int sensorPin = A0; // Analog pin connected to the sensor
+const int threshold = 500; // Threshold value for decision, adjust as needed per sensor
+String outputState = "OFF"; // Variable to store the output state
+void setup() {
+Serial.begin(9600);
+}
+void loop() {
+int sensorValue = analogRead(sensorPin); // Read sensor data
+// Think element: make a decision based on sensor data
+if (sensorValue > threshold) {
+outputState = "ON"; // Turn ON if threshold is exceeded
+} else {
+outputState = "OFF"; // Turn OFF if below threshold
+}
+// Print the current state
+Serial.print("Sensor Value: ");
+Serial.print(sensorValue);
+Serial.print(" | Output State: ");
+Serial.println(outputState);
+delay(500); // Short delay for readability
+}
+
+const int sensorPin = 2; // Digital pin connected to the tilt switch or button
+String outputState = "LOW"; // Variable to store the output state
+void setup() {
+pinMode(sensorPin, INPUT); // Set sensorPin as input
+Serial.begin(9600); // Start serial communication
+}
+void loop() {
+int sensorState = digitalRead(sensorPin); // Read the state of the sensor
+// Think element: make a decision based on sensor state
+if (sensorState == HIGH) { // If switch/button is pressed or tilted
+outputState = "HIGH";
+} else { // If switch/button is not pressed or tilted
+outputState = "LOW";
+}
+// Print the current state
+Serial.print("Sensor State: ");
+Serial.print(sensorState == HIGH ? "Calm" : "Earthquake!!");
+Serial.print(" | Output State: ");
+Serial.println(outputState);
+delay(500); // Short delay for readability
+}
+
+
+// Part 5: (Act) – Actuation - Introduction
+// Pin connected to the piezo buzzer
+int buzzerPin = 2; // Define the pin number connected to the buzzer
+// Define the notes and their frequencies (in Hz)
+int melody[] = { 440, 440, 440, 349, 523, 440, 349, 523, 440 }; // A, A, A, F, C, A, F, C, A
+// Frequencies are standard note values:
+// 440 Hz = A, 349 Hz = F, 523 Hz = C
+// Define the note durations, where 1 represents a quarter note
+int noteDurations[] = { 2, 2, 2, 4, 4, 2, 4, 4, 2 }; // Quarter notes
+void setup() {
+pinMode(buzzerPin, OUTPUT); // Set the buzzer pin as an output to generate sound
+}
+void loop() {
+// Loop through each note in the melody
+for (int thisNote = 0; thisNote < 9; thisNote++) {
+// Calculate the duration for each note based on the noteDuration array
+int noteDuration = 1000 / noteDurations[thisNote]; // Duration in milliseconds
+// Play the note using the tone function
+tone(buzzerPin, melody[thisNote], noteDuration); // Generate sound at specific frequency and
+duration
+// Wait for the note to finish before moving to the next note
+delay(noteDuration * 1.30); // Extra delay to account for the note's fade-out or natural
+pause
+}
+// Wait for 2 seconds before starting the melody again
+delay(2000); // Pause before repeating the melody
+}
+
+#include <Servo.h>
+Servo myServo; // Create a Servo object to control the servo
+int servoPin = 2; // Pin connected to the control pin of the servo
+void setup() {
+myServo.attach(servoPin); // Attach the servo on pin 9 to the Servo object
+}
+void loop() {
+myServo.write(0); // Set the servo to 0 degrees
+delay(1000); // Wait for 1 second
+myServo.write(180); // Set the servo to 180 degrees
+delay(1000); // Wait for 1 second
+myServo.write(0); // Set the servo to 0 degrees
+delay(500); // Wait for 0.5 second
+myServo.write(180); // Set the servo to 180 degrees
+delay(500); // Wait for 0.5 second
+}
+
+int ledPin1 = 1; // LED connected to digital pin 1
+int ledPin2 = 2; // LED connected to digital pin 2
+void setup() {
+pinMode(ledPin1, OUTPUT); // Set LED pin 1 as an output
+pinMode(ledPin2, OUTPUT); // Set LED pin 2 as an output
+
+}
+void loop() {
+digitalWrite(ledPin1, HIGH); // Turn LED 1 on
+digitalWrite(ledPin2, LOW); // Turn LED 2 off
+delay(1000); // Wait for 1 second
+digitalWrite(ledPin1, LOW); // Turn LED 1 off
+digitalWrite(ledPin2, HIGH); // Turn LED 2 on
+delay(1000); // Wait for 1 second
+}
+ 
